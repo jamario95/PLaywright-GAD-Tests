@@ -16,10 +16,10 @@ test.describe('Get By TestID/CSS Locator Tests', () => {
     await expect(checkBoxLocator).toHaveText(expectedMessage);
   });
 
-  test('Get By  CSS Locator', async ({page})=> {
+  test('Get By  CSS Locator', async ({ page }) => {
     //Arrange
-    const elementSelector = ('#id-button-element');
-    const checkBoxSelector = ('#results');
+    const elementSelector = '#id-button-element';
+    const checkBoxSelector = '#results';
     const expectedMessage = 'You clicked the button!';
 
     const elementLocator = page.locator(elementSelector);
@@ -29,5 +29,5 @@ test.describe('Get By TestID/CSS Locator Tests', () => {
     //Assert
     await expect(elementLocator).toBeVisible();
     await expect(checkBoxLocator).toHaveText(expectedMessage);
-});
+  });
 });
