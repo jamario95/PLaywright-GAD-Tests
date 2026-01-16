@@ -4,7 +4,7 @@ test.describe('Popup allerts', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/practice/alerts-1.html');
   });
-  test('Alert box', async ({ page }) => {
+  test('should invoke alert box, check message and dismiss it', async ({ page }) => {
     // Dialog Handler
     page.once('dialog', (dialog) => {
       console.log(`Dialog message: ${dialog.message()}`);
@@ -21,7 +21,7 @@ test.describe('Popup allerts', () => {
     //Assert
     await expect(buttonLocator).toBeVisible();
   });
-  test('Simple alert popup', async ({ page }) => {
+  test('invoke simple alert popup with fadeout', async ({ page }) => {
     //Arrange
     const buttonLocator = page.getByTestId('dti-alert-btn');
     const popUpLocator = page.getByTestId('dti-simple-alert');
@@ -34,7 +34,7 @@ test.describe('Popup allerts', () => {
     await expect(popUpLocator).toHaveText('Button clicked!');
   });
 
-  test('PopUp Modal', async ({ page }) => {
+  test('should open PopUp Modal and Accept action', async ({ page }) => {
     //Arrange
     const buttonLocator = page.getByTestId('dti-popup-modal-btn');
     const acceptLocator = page.getByRole('button', { name: 'Accept' });
@@ -50,7 +50,7 @@ test.describe('Popup allerts', () => {
     await expect(customAlertLocator).toHaveText('Modal was accepted by user! 🎉');
   });
 
-  test('PopUp Modal - Cancel action', async ({ page }) => {
+  test('should open PopUp Modal and Cancel action', async ({ page }) => {
     //Arrange
     const buttonLocator = page.getByTestId('dti-popup-modal-btn');
     const cancelLocator = page.getByRole('button', { name: 'Cancel' });
@@ -67,7 +67,7 @@ test.describe('Popup allerts', () => {
     await expect(popUpLocator).toBeEmpty();
   });
 
-  test('Simple alert with counter', async ({ page }) => {
+  test('should invoike Simple alert with counter', async ({ page }) => {
     //Arrange
     const buttonLocator = page.getByTestId('dti-alert-counter-btn');
     const popUpLocator = page.getByTestId('dti-simple-alert-with-counter');
@@ -88,7 +88,7 @@ test.describe('Popup allerts', () => {
     await expect(secondPopUpLocator).toHaveText('Button clicked 2 times');
   });
 
-  test('Simple alert with random fade out', async ({ page }) => {
+  test('should invoke Simple alert with random fade out', async ({ page }) => {
     //Arrange
     const buttonLocator = page.getByTestId('dti-alert-random-fade-out-btn');
     const popUpLocator = page.getByTestId('dti-simple-alert-with-counter-and-random-fade-out');
