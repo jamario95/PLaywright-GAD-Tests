@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('1.3 Click n-th element from list (no IDs) and verify', () => {
+test.describe('1.2 Click n-th element from list (no IDs) and verify', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/practice/random-places-no-ids-1.html');
   });
@@ -19,7 +19,6 @@ test.describe('1.3 Click n-th element from list (no IDs) and verify', () => {
     // Assert
     await expect(resultsContainer).toBeVisible();
     await expect(resultsContainer).toContainText(`You have booked a table at ${restaurantName}`);
-    await expect(resultsContainer).toContainText('booked');
   });
 
   test('should click second "Book Now" button using nth() selector and verify', async ({ page }) => {
@@ -82,7 +81,7 @@ test.describe('1.3 Click n-th element from list (no IDs) and verify', () => {
     await expect(resultsContainer).toHaveText(ratingPattern);
   });
 
-  // Variant Tests  (Dynamic list manipulation)
+  // Variant Tests (Dynamic list manipulation)
   test('should add one more place and click its "Book Now" button using last()', async ({ page }) => {
     // Arrange
     const addOnePlaceButton = page.getByRole('button', { name: 'Get one more place!' });

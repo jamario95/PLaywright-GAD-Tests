@@ -32,12 +32,18 @@ export default defineConfig({
     trace: 'on',
   },
 
+  /* Global timeout for expect() assertions. Raised to 10s to handle pages with delayed state changes (2-5s). */
+  expect: {
+    timeout: 10_000,
+  },
+
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+
 
     // {
     //   name: 'firefox',
