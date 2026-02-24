@@ -1,5 +1,22 @@
 import { test, expect } from '@playwright/test';
-
+/**
+ * Scenario 1.1: Click n-th element from list (no IDs) and verify
+ * Page: /practice/random-places-no-ids-1.html
+ * Key metric: Ease of writing, flakiness
+ *
+ * Goal: Compare element selection without stable IDs
+ *
+ * GAD Page structure:
+ * - #places: Container with place cards
+ * - Each card has Book Now button
+ * - Results shown in #results-container
+ * - Dynamic list manipulation buttons available
+ *
+ * Differences between technologies:
+ * - Playwright: first(), nth(), last() methods with auto-waiting
+ * - Selenium: findElements() + manual iteration and indexing
+ * - Cypress: .first(), .eq(), .last() with automatic retry
+ */
 test.describe('1.1 Click n-th element from list (no IDs) and verify', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/practice/random-places-no-ids-1.html');
