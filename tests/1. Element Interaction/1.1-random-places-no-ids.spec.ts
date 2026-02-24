@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('1.2 Click n-th element from list (no IDs) and verify', () => {
+test.describe('1.1 Click n-th element from list (no IDs) and verify', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/practice/random-places-no-ids-1.html');
   });

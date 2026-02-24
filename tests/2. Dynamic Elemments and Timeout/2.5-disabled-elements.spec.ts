@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('1.1 Verify disabled/enabled state of elements', () => {
+test.describe('2.5 Verify disabled/enabled state of elements', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/practice/disabled-elements-1.html');
   });
