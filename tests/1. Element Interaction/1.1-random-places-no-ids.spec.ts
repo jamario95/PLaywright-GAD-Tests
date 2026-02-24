@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: first(), nth(), last() methods with auto-waiting
- * - Selenium: findElements() + manual iteration and indexing
+ * - Selenium/WebdriverIO: $$() returns a materialized array snapshot; manual indexing [0], [n-1]
  * - Cypress: .first(), .eq(), .last() with automatic retry
  */
 test.describe('1.1 Click n-th element from list (no IDs) and verify', () => {
