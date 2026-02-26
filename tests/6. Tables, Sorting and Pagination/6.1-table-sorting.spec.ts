@@ -9,8 +9,13 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: page.locator('tr').count(), auto-waiting, native array handling
- * - Selenium: findElements() + manual iteration, explicit waits
- * - Cypress: cy.get('tr').should('have.length', N), automatic retry
+ * - Selenium: findElements() + manual iteration, explicit waits, browser.pause() for stability
+ * - Cypress: cy.get('tr').should('have.length', N), automatic retry, .then() for array operations
+ *
+ * Playwright-specific notes:
+ * - Uses for loops with .nth() to iterate through elements
+ * - Auto-waiting on all locator actions (no explicit waits needed)
+ * - Native array handling with Promise.all through assertions
  */
 test.describe('6.1 - Table Sorting by Name Column', () => {
   test.beforeEach(async ({ page }) => {

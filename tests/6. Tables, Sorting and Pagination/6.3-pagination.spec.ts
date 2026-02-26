@@ -9,8 +9,14 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: Built-in auto-waiting, easy page navigation assertions
- * - Selenium: Manual waits for page transitions, complex state verification
- * - Cypress: Automatic retry, but async pagination can cause flakiness
+ * - Selenium: Manual waits for page transitions with browser.pause(), complex state verification
+ * - Cypress: Automatic retry on assertions, but explicit cy.wait() for async pagination
+ *
+ * Playwright-specific notes:
+ * - Uses test.skip() for conditional test skipping
+ * - evaluate() to check button disabled state
+ * - No explicit waits needed - auto-waiting handles page transitions
+ * - Fluent API for chaining locator operations with hasClass()
  *
  * Note: This page uses API-based pagination. Total pages depend on API data.
  */

@@ -9,8 +9,14 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: page.evaluate() for scroll, auto-waiting for new elements
- * - Selenium: execute_script() for scroll, manual waits for DOM updates
- * - Cypress: cy.scrollTo() + automatic retry, but limited scroll control
+ * - Selenium: browser.execute() for scroll, manual waits for DOM updates, must re-fetch $$()
+ * - Cypress: cy.window() for scroll operations, limited control over element containers
+ *
+ * Playwright-specific notes:
+ * - Uses page.evaluate() with native JavaScript for scroll operations
+ * - Auto-waiting handles loading indicator visibility changes
+ * - expect(items).toHaveCount() for asserting element counts with auto-Wait
+ * - No element re-fetching needed - locators are dynamic
  */
 test.describe('6.4 - Infinite Scroll', () => {
   test.beforeEach(async ({ page }) => {

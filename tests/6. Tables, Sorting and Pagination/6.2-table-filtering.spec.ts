@@ -9,8 +9,13 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: page.locator('tr').count(), dropdown interaction with locator chains
- * - Selenium: findElements() + manual iteration, complex dropdown handling
- * - Cypress: cy.get('tr').should('have.length', N), automatic retry
+ * - Selenium: findElements() + manual iteration, must loop to find exact dropdown item
+ * - Cypress: cy.get('tr').should('have.length', N), automatic retry, .each() for iteration
+ *
+ * Playwright-specific notes:
+ * - Uses getByText() with exact: true for precise dropdown option matching
+ * - Locator chaining with .getByText() and .click() for fluent API
+ * - Loops through dropdown items to verify filter results
  */
 test.describe('6.2 - Table Filtering by Text', () => {
   test.beforeEach(async ({ page }) => {
