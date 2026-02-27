@@ -14,8 +14,6 @@ import { test, expect } from '@playwright/test';
  *
  * Framework-specific notes:
  * - Playwright: context.cookies() retrieves all cookies in one async call; cookies auto-persist within test context
- * - Cypress: cy.getCookie('name') is a dedicated chainable command; cy.getAllCookies() available; cy.session() for caching
- * - WebdriverIO: browser.getCookies() needs explicit await; browser.waitUntil() for navigation polling; browser.deleteCookies() in beforeEach
  */
 test.describe('8.1 - JWT Login Verification (Cookie Storage)', () => {
   // Test user credentials (default GAD user)

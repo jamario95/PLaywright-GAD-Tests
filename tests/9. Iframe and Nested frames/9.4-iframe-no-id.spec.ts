@@ -1,24 +1,29 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 /**
  * Scenario 9.4: Verify text in iframe without ID
  * Page: /practice/iframe-4.html
- * Key metric: Difficult selectors in iframe
  *
- * Goal: Compare handling of iframes without ID attributes
+ * Technology Comparison:
+ * - Cypress: Selects outer iframe by data-testid/id, chains contentDocument for inner iframe
+ * - Playwright: Supports data-testid, id, or index selectors in chained frameLocator()
+ * - WebdriverIO: Must switch by Element reference; two-step switchFrame() pattern per test
  *
- * Page structure:
- * - Main page with outer iframe (has data-testid="dti-simple-iframe", id="register-iframe")
- * - Outer iframe contains inner iframe (id="inner-iframe") with register form
- * - Inner iframe has username, password, age inputs and register button
+ * Metric: Difficulty of selectors, code complexity for nested iframes without predictable IDs
  *
- * Differences between technologies:
- * - Playwright: Can use data-testid or index-based selectors, chained frameLocator()
- * - Selenium: Requires index-based switching or finding by other attributes
- * - Cypress: Complex nested iframe handling with plugins
- *
- * Metric: Difficulty of selectors, code complexity
+ * Framework-specific notes:
+ * - frameLocator() accepts any CSS selector including [data-testid="..."] natively
+ * - getRegisterFrame() helper chains two frameLocator() calls declaratively in one expression
+ * - .locator('iframe').nth(0).contentFrame() provides index-based access as alternative API
  */
+
+/**
+ * Helper: returns a FrameLocator pointing to the inner register iframe.
+ * Page structure: main page → [data-testid="dti-simple-iframe"] → #inner-iframe
+ */
+const getRegisterFrame = (page: Page) =>
+  page.frameLocator('[data-testid="dti-simple-iframe"]').frameLocator('#inner-iframe');
+
 test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
   test.beforeEach(async ({ page }) => {
     // Arrange - Navigate to the page with nested iframes
@@ -26,9 +31,8 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
   });
 
   test('should access iframe using data-testid attribute', async ({ page }) => {
-    // Arrange - Use data-testid to locate outer iframe
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    // Arrange - Use data-testid to locate outer iframe via helper
+    const innerFrame = getRegisterFrame(page);
 
     // Act & Assert - Verify form elements are accessible
     const usernameInput = innerFrame.getByTestId('username-input');
@@ -36,7 +40,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
   });
 
   test('should access iframe using id attribute', async ({ page }) => {
-    // Arrange - Use id to locate outer iframe
+    // Arrange - Use id to locate outer iframe (alternative selector)
     const outerFrame = page.frameLocator('#register-iframe');
     const innerFrame = outerFrame.frameLocator('#inner-iframe');
 
@@ -49,8 +53,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
     page,
   }) => {
     // Arrange
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
 
     const usernameInput = innerFrame.getByTestId('username-input');
     const passwordInput = innerFrame.getByTestId('password-input');
@@ -77,8 +80,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
 
   test('should show validation error for empty username', async ({ page }) => {
     // Arrange
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
 
     const usernameInput = innerFrame.getByTestId('username-input');
     const passwordInput = innerFrame.getByTestId('password-input');
@@ -97,8 +99,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
 
   test('should show validation error for short password', async ({ page }) => {
     // Arrange
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
 
     const usernameInput = innerFrame.getByTestId('username-input');
     const passwordInput = innerFrame.getByTestId('password-input');
@@ -117,8 +118,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
 
   test('should show validation error for invalid age', async ({ page }) => {
     // Arrange
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
 
     const usernameInput = innerFrame.getByTestId('username-input');
     const passwordInput = innerFrame.getByTestId('password-input');
@@ -140,8 +140,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
     page,
   }) => {
     // Arrange
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
 
     const usernameInput = innerFrame.getByTestId('username-input');
     const passwordInput = innerFrame.getByTestId('password-input');
@@ -160,8 +159,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
     page,
   }) => {
     // Arrange
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
 
     const usernameInput = innerFrame.getByTestId('username-input');
     const passwordInput = innerFrame.getByTestId('password-input');
@@ -194,8 +192,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
 
   test('should verify form header text in nested iframe', async ({ page }) => {
     // Arrange
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
     const formHeader = innerFrame.locator('h3');
 
     // Act & Assert
@@ -206,8 +203,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
     page,
   }) => {
     // Arrange
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
 
     const usernameInput = innerFrame.getByTestId('username-input');
     const passwordInput = innerFrame.getByTestId('password-input');
@@ -241,8 +237,7 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
   }) => {
     // Arrange
     const startTime = Date.now();
-    const outerFrame = page.frameLocator('[data-testid="dti-simple-iframe"]');
-    const innerFrame = outerFrame.frameLocator('#inner-iframe');
+    const innerFrame = getRegisterFrame(page);
 
     const usernameInput = innerFrame.getByTestId('username-input');
     const passwordInput = innerFrame.getByTestId('password-input');
@@ -272,10 +267,8 @@ test.describe('9.4 - Iframe Without ID / Complex Selectors', () => {
   test('should demonstrate frameLocator chaining vs Selenium multiple switches', async ({
     page,
   }) => {
-    // Arrange
-    const innerFrame = page
-      .frameLocator('[data-testid="dti-simple-iframe"]')
-      .frameLocator('#inner-iframe');
+    // Arrange - Single chained expression via helper (no switching state to manage)
+    const innerFrame = getRegisterFrame(page);
     const mainPageTitle = page.locator('h2');
 
     // Act - Fill registration form using chained frameLocator

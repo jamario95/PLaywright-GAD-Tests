@@ -3,20 +3,18 @@ import { test, expect } from '@playwright/test';
 /**
  * Scenario 9.1: Click element inside iframe (level 1)
  * Page: /practice/iframe-1.html
- * Key metric: Ease of iframe handling
  *
- * Goal: Compare iframe handling across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.get('iframe').its('0.contentDocument.body') - manual DOM access via contentDocument
+ * - Playwright: page.frameLocator() - built-in first-class iframe support, no switching needed
+ * - WebdriverIO: browser.switchFrame(element) - explicit frame switching required
  *
- * Page structure:
- * - Main page contains iframe with src="./partials/timezones.html"
- * - Iframe contains timezone clocks with input and "Add Time Zone" button
+ * Metric: Lines of code, need for plugins, iframe access complexity
  *
- * Differences between technologies:
- * - Playwright: page.frameLocator() + auto-handling
- * - Selenium: driver.switch_to.frame() + manual switching
- * - Cypress: cy.frameLoaded() + plugin (cypress-iframe)
- *
- * Metric: Lines of code, need for plugins
+ * Framework-specific notes:
+ * - frameLocator() is synchronous and auto-waits for iframe content to be ready before interaction
+ * - No explicit frame switching or cleanup required — locator context is scoped to the iframe
+ * - Chaining frameLocator() calls handles nested iframes declaratively without global state
  */
 test.describe('9.1 - Basic Iframe Interaction (Level 1)', () => {
   test.beforeEach(async ({ page }) => {
@@ -151,5 +149,34 @@ test.describe('9.1 - Basic Iframe Interaction (Level 1)', () => {
 
     // Assert - Operation completed successfully
     expect(executionTime).toBeGreaterThan(0);
+  });
+
+  test('should verify iframe is loaded before interaction', async ({ page }) => {
+    // Assert - Iframe element exists on the page
+    const iframeElement = page.locator('iframe');
+    await expect(iframeElement).toBeAttached();
+
+    // Assert - Iframe content is accessible (clocks container exists)
+    const iframe = page.frameLocator('iframe');
+    const clocksContainer = iframe.locator('#clocks');
+    await expect(clocksContainer).toBeAttached();
+  });
+
+  test('should add multiple timezones sequentially', async ({ page }) => {
+    // Arrange
+    const iframe = page.frameLocator('iframe');
+    const timezoneInput = iframe.locator('input[placeholder="Enter a time zone"]');
+    const addButton = iframe.getByRole('button', { name: 'Add Time Zone' });
+    const timezones = ['Europe/Prague', 'Europe/Rome'];
+
+    // Act & Assert - Add each timezone sequentially
+    for (const timezone of timezones) {
+      await timezoneInput.clear();
+      await timezoneInput.fill(timezone);
+      await addButton.click();
+
+      // Assert - Each timezone appears after being added
+      await expect(iframe.locator(`text=${timezone}`)).toBeVisible();
+    }
   });
 });

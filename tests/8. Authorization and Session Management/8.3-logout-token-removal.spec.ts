@@ -14,8 +14,6 @@ import { test, expect } from '@playwright/test';
  *
  * Framework-specific notes:
  * - Playwright: context.cookies() returns [] after logout; page.route() verifies no Authorization header sent post-logout
- * - Cypress: cy.getCookie('token').should('be.null') - idiomatic null check; cy.clearCookies() available for manual cleanup
- * - WebdriverIO: browser.getCookies() undefined check; auth-header verified indirectly via cookie absence; test coverage aligned with Playwright and Cypress
  */
 test.describe('8.3 - Logout Token Removal Verification', () => {
   // Test user credentials

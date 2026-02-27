@@ -14,8 +14,6 @@ import { test, expect } from '@playwright/test';
  *
  * Framework-specific notes:
  * - Playwright: page.on('dialog') registered BEFORE page.goto(); dialog.accept(value) passes credentials; most concise solution
- * - Cypress: window.prompt stubbed in onBeforeLoad BEFORE navigation; cy.stub() replaces native function; cannot test real browser dialog
- * - WebdriverIO: blocking prompt requires CDP via browser.getPuppeteer(); page.on('dialog') from Puppeteer instance; browser.pause() needed
  */
 test.describe('8.4 - Modal Login Interaction', () => {
   // Valid credentials for modal login

@@ -14,8 +14,6 @@ import { test, expect } from '@playwright/test';
  *
  * Framework-specific notes:
  * - Playwright: context.storageState() captures session state; page.route() intercepts requests; context auto-manages cookies
- * - Cypress: cy.session() caches login state between tests; cy.intercept() for request assertions; storageState equivalent via cy.session()
- * - WebdriverIO: browser.deleteCookies() required in beforeEach for test isolation; browser.waitUntil() for URL checks
  */
 test.describe('8.2 - Protected Page Access with Active Session', () => {
   // Test user credentials

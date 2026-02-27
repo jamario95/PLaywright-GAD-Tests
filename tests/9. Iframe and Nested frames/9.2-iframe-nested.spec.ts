@@ -3,21 +3,18 @@ import { test, expect } from '@playwright/test';
 /**
  * Scenario 9.2: Fill form in nested iframe (level 2)
  * Page: /practice/iframe-2.html
- * Key metric: Code complexity
  *
- * Goal: Compare handling of nested iframes across frameworks
+ * Technology Comparison:
+ * - Cypress: Chained contentDocument access - each nesting level requires a separate .its() call
+ * - Playwright: Chained frameLocator() calls - clean API for nested iframes at any depth
+ * - WebdriverIO: Sequential browser.switchFrame() calls - must switch to each level explicitly
  *
- * Page structure:
- * - Main page contains iframe with src="./partials/placesOfInterest.html"
- * - Iframe contains restaurant listings with "Book Now" buttons
- * - Results container and "Get one more place!" / "Get 3 more place!" buttons
+ * Metric: Lines of code, code complexity with increasing nesting depth
  *
- * Differences between technologies:
- * - Playwright: Chained frameLocator() calls for nested iframes
- * - Selenium: Multiple switch_to.frame() calls required
- * - Cypress: cy.frameLoaded().find() with nested iframes (complex)
- *
- * Metric: Lines of code, code complexity
+ * Framework-specific notes:
+ * - frameLocator() chains remain readable and concise regardless of nesting depth
+ * - Auto-waiting eliminates the need for explicit wait commands before iframe interactions
+ * - No afterEach cleanup required — frameLocator holds no persistent browser state
  */
 test.describe('9.2 - Nested Iframe Form Interaction (Level 2)', () => {
   test.beforeEach(async ({ page }) => {
@@ -186,5 +183,15 @@ test.describe('9.2 - Nested Iframe Form Interaction (Level 2)', () => {
 
     // Assert - Operation completed successfully
     expect(executionTime).toBeGreaterThan(0);
+  });
+
+  test('should verify multiple restaurants are displayed', async ({ page }) => {
+    // Arrange
+    const iframe = page.frameLocator('iframe');
+    const bookButtons = iframe.getByRole('button', { name: 'Book Now' });
+
+    // Assert - At least one restaurant with a Book Now button should be displayed
+    const count = await bookButtons.count();
+    expect(count).toBeGreaterThanOrEqual(1);
   });
 });
