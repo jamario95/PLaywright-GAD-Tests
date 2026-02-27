@@ -21,9 +21,9 @@ import { test, expect } from '@playwright/test';
  * so we test the actual behavior (no error UI shown, but error response received).
  *
  * Differences between technologies:
- * - Playwright: page.on('response') + status code check - elegant error handling
- * - Selenium: Try-catch with WebDriverException - less intuitive
- * - Cypress: cy.intercept() for error mocking - different approach
+ * - Playwright: page.on('response') + page.waitForResponse() - native network interception with full response inspection
+ * - Selenium: UI state verification only - no network interception or HTTP status code inspection capability
+ * - Cypress: cy.intercept() - native interception with response body and status code access
  *
  * Metric: Error handling code complexity
  */
@@ -62,10 +62,9 @@ test.describe('5.3 - Download Error Handling', () => {
     await downloadBtn.click();
 
     // Wait for the error response to be captured
-    await page.waitForResponse(
-      (response) => response.url().includes('/api/practice/download/docx'),
-      { timeout: 15000 }
-    );
+    await page.waitForResponse((response) => response.url().includes('/api/practice/download/docx'), {
+      timeout: 15000,
+    });
 
     // Assert - Should receive 500 error status code
     expect(errorStatusCode).toBe(500);
@@ -77,10 +76,9 @@ test.describe('5.3 - Download Error Handling', () => {
     let responseBody = '';
 
     // Act - Click download button and wait for response
-    const responsePromise = page.waitForResponse(
-      (response) => response.url().includes('/api/practice/download/docx'),
-      { timeout: 15000 }
-    );
+    const responsePromise = page.waitForResponse((response) => response.url().includes('/api/practice/download/docx'), {
+      timeout: 15000,
+    });
     await downloadBtn.click();
     const response = await responsePromise;
 
@@ -97,10 +95,9 @@ test.describe('5.3 - Download Error Handling', () => {
     const btnText = page.locator('#btn-text');
 
     // Act - Click download button and wait for response
-    const responsePromise = page.waitForResponse(
-      (response) => response.url().includes('/api/practice/download/docx'),
-      { timeout: 15000 }
-    );
+    const responsePromise = page.waitForResponse((response) => response.url().includes('/api/practice/download/docx'), {
+      timeout: 15000,
+    });
     await downloadBtn.click();
     await responsePromise;
 
@@ -143,10 +140,9 @@ test.describe('5.3 - Download Error Handling', () => {
     });
 
     // Act - Click download button and wait for error response
-    const responsePromise = page.waitForResponse(
-      (response) => response.url().includes('/api/practice/download/docx'),
-      { timeout: 15000 }
-    );
+    const responsePromise = page.waitForResponse((response) => response.url().includes('/api/practice/download/docx'), {
+      timeout: 15000,
+    });
     await downloadBtn.click();
     await responsePromise;
 
@@ -165,7 +161,7 @@ test.describe('5.3 - Download Error Handling', () => {
     // Act - First attempt
     const firstResponsePromise = page.waitForResponse(
       (response) => response.url().includes('/api/practice/download/docx'),
-      { timeout: 15000 }
+      { timeout: 15000 },
     );
     await downloadBtn.click();
     await firstResponsePromise;
@@ -185,10 +181,9 @@ test.describe('5.3 - Download Error Handling', () => {
     const downloadBtn = page.locator('#download-report-btn');
 
     // Act - Click download button and wait for response
-    const responsePromise = page.waitForResponse(
-      (response) => response.url().includes('/api/practice/download/docx'),
-      { timeout: 15000 }
-    );
+    const responsePromise = page.waitForResponse((response) => response.url().includes('/api/practice/download/docx'), {
+      timeout: 15000,
+    });
     await downloadBtn.click();
     const response = await responsePromise;
 
@@ -210,10 +205,9 @@ test.describe('5.3 - Download Error Handling', () => {
     });
 
     // Act - Click download button
-    const responsePromise = page.waitForResponse(
-      (response) => response.url().includes('/api/practice/download/docx'),
-      { timeout: 15000 }
-    );
+    const responsePromise = page.waitForResponse((response) => response.url().includes('/api/practice/download/docx'), {
+      timeout: 15000,
+    });
     await downloadBtn.click();
     await responsePromise;
 
@@ -228,10 +222,9 @@ test.describe('5.3 - Download Error Handling', () => {
     // Act - Measure time from click to error response
     const startTime = Date.now();
 
-    const responsePromise = page.waitForResponse(
-      (response) => response.url().includes('/api/practice/download/docx'),
-      { timeout: 15000 }
-    );
+    const responsePromise = page.waitForResponse((response) => response.url().includes('/api/practice/download/docx'), {
+      timeout: 15000,
+    });
     await downloadBtn.click();
     await responsePromise;
 

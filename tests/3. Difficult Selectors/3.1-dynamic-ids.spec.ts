@@ -11,8 +11,8 @@ import { test, expect } from '@playwright/test';
  * Playwright solution: Use data-testid, text content, or stable attributes
  *
  * Differences between technologies:
- * - Playwright: page.locator() with data-testid, getByRole, filter
- * - Selenium: No native support - requires XPath or CSS with attributes
+ * - Playwright: page.locator() with data-testid, getByRole, filter({hasText})
+ * - Selenium/WebdriverIO: Manual for...of loops with getText() for text-based filtering; $$('button=text') for simple cases
  * - Cypress: cy.get() with attributes, cy.contains()
  */
 test.describe('3.1 - Dynamic IDs', () => {

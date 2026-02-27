@@ -12,8 +12,8 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: Native support for Web Components
- * - Selenium: Requires execute_script to access shadow root
- * - Cypress: Requires cypress-shadow-dom plugin
+ * - Selenium/WebdriverIO: Direct click works; $() auto-traverses shadow children of custom elements
+ * - Cypress: Uses .shadow() method to access shadow root of custom elements
  */
 test.describe('3.4 - Custom Elements (Web Components)', () => {
   test.beforeEach(async ({ page }) => {

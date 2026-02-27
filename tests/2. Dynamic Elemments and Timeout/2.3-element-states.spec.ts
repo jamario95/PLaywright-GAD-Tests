@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: Auto-wait automatically handles all states
- * - Selenium: Requires different ExpectedConditions for each state
+ * - Selenium/WebdriverIO: waitForDisplayed() + waitForEnabled() + browser.waitUntil() for text changes
  * - Cypress: Automatic retry, but may require additional assertions
  */
 test.describe('2.3 - Elements transitioning through states (not present -> disabled -> enabled)', () => {

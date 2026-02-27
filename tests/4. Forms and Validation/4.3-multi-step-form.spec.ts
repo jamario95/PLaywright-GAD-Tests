@@ -17,7 +17,7 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: page.fill(), page.click(), auto-waiting between steps
- * - Selenium: sendKeys(), click(), manual waits for page transitions
+ * - Selenium: setValue(), click(), waitForDisplayed() required before each step; selectByAttribute() for dropdowns
  * - Cypress: cy.type(), cy.click(), automatic retry
  */
 

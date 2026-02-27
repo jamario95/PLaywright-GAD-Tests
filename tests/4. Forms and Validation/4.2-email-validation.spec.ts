@@ -17,7 +17,7 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: page.fill(), native validation support, toHaveAttribute for HTML5 validation
- * - Selenium: sendKeys(), getAttribute() for validation state
+ * - Selenium: setValue(), getAttribute('class') + regex test; $('body').click() workaround for blur
  * - Cypress: cy.type(), should('have.attr') for validation
  */
 test.describe('4.2 - Email Format Validation', () => {

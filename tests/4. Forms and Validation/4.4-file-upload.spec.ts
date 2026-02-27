@@ -20,8 +20,8 @@ import fs from 'fs';
  *
  * Differences between technologies:
  * - Playwright: page.setInputFiles() - native support, no workarounds needed
- * - Selenium: sendKeys() to file input - OS-dependent, may require dialog handling
- * - Cypress: cy.fixture() + cy.get().attachFile() - requires plugin
+ * - Selenium: browser.uploadFile() + setValue() for single file; DataTransfer JS injection for multiple files; makeFileInputVisible() workaround required
+ * - Cypress: cy.selectFile() - native support since Cypress 9.3+, no plugin required
  *
  * Metric: Number of steps for file upload, filesystem handling
  */

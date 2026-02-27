@@ -8,12 +8,12 @@ import { test, expect } from '@playwright/test';
  * Goal: Compare advanced selector capabilities
  *
  * Playwright automatically penetrates Shadow DOM when using data-testid
- * Selenium requires execute_script
+ * Selenium/WebdriverIO uses shadow$() - no execute_script needed
  *
  * Differences between technologies:
  * - Playwright: Native Shadow DOM support, automatic penetration
- * - Selenium: No native support - requires execute_script
- * - Cypress: cy.get().shadow() (community plugin)
+ * - Selenium/WebdriverIO: shadow$() method for explicit shadow root access
+ * - Cypress: cy.get().shadow() or .shadow().find() method
  */
 test.describe('3.2 - Shadow DOM (level 1)', () => {
   test.beforeEach(async ({ page }) => {

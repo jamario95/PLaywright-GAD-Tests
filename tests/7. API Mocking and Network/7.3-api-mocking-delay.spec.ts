@@ -3,26 +3,24 @@ import { test, expect } from '@playwright/test';
 /**
  * Scenario 7.3: Mock API → delay 3s → verify spinner/loading state
  * Page: /practice/charts-2-api.html
- * Key metric: Network throttling
+ * API Endpoint: GET /api/v1/data/weather?date=...&days=14&futuredays=2
  *
- * Goal: Compare network delay simulation and loading state handling
+ * Network delay simulation: 3000ms
  *
- * Page structure:
- * - #sampleChart: Chart container (empty during loading, filled after data loads)
- * - #todayDate: Today's date display
- * - API endpoint: GET /api/v1/data/weather?date=...&days=14&futuredays=2
+ * Technology Comparison:
+ * - Cypress: cy.intercept() + req.reply((res) => res.delay(3000)) - native support (5 LOC)
+ * - Playwright: setTimeout + route.fulfill() - requires manual async handling (7 LOC)
+ * - WebdriverIO: browser.mock() with responseTime: 3000 - native support (4 LOC)
  *
- * Note: The charts-2-api page doesn't have an explicit loading spinner,
- * but we can verify the delay by checking:
- * - Chart container is empty during delay
- * - Chart renders after delay completes
+ * Metrics: Network throttling capabilities, loading state verification, delay accuracy
  *
- * Differences between technologies:
- * - Playwright: route.fulfill() with setTimeout or page.route() delay - native support
- * - Selenium: BrowserMob Proxy with latency rules - complex setup
- * - Cypress: cy.intercept() with delay option - simple
- *
- * Metric: Ease of implementing delays, verification of loading states
+ * Playwright-specific notes:
+ * - page.route() callback allows setTimeout for simulating network delays
+ * - Must handle async/await pattern correctly for deterministic delays
+ * - Supports verification of chart container (empty during loading, filled after)
+ * - Request cancellation via AbortController demonstrates advanced request control
+ * - Today's date display can be verified after loading completes
+ * - 12 tests including delay handling and request cancellation
  */
 test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
   // Mock weather data for testing
@@ -41,9 +39,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     },
   ];
 
-  test('should delay API response by 3 seconds and still render chart', async ({
-    page,
-  }) => {
+  test('should delay API response by 3 seconds and still render chart', async ({ page }) => {
     // Arrange - Set up API route with 3 second delay
     const delayMs = 3000;
 
@@ -62,9 +58,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     await page.goto('/practice/charts-2-api.html');
 
     // Wait for chart to render (should take at least 3 seconds)
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
     const endTime = Date.now();
     const loadTime = endTime - startTime;
 
@@ -73,9 +67,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     expect(loadTime).toBeGreaterThanOrEqual(delayMs - 500); // Allow some tolerance
   });
 
-  test('should verify chart container is empty during API delay', async ({
-    page,
-  }) => {
+  test('should verify chart container is empty during API delay', async ({ page }) => {
     // Arrange - Set up API route with delay
     const delayMs = 2000;
     let responseCompleted = false;
@@ -99,7 +91,10 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
 
     // Check that chart SVG/canvas is not yet rendered (during delay)
     const chartContent = chartContainer.locator('svg, canvas');
-    const chartVisible = await chartContent.first().isVisible().catch(() => false);
+    const chartVisible = await chartContent
+      .first()
+      .isVisible()
+      .catch(() => false);
 
     // If we're fast enough, chart shouldn't be rendered yet
     // This is a timing-sensitive test
@@ -127,9 +122,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     // Act - Navigate to the page
     const startTime = Date.now();
     await page.goto('/practice/charts-2-api.html');
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
     const loadTime = Date.now() - startTime;
 
     // Assert - Load time should be at least 1 second
@@ -153,9 +146,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     // Act - Navigate to the page
     const startTime = Date.now();
     await page.goto('/practice/charts-2-api.html');
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible({ timeout: 15000 });
     const loadTime = Date.now() - startTime;
 
     // Assert - Load time should be at least 5 seconds
@@ -163,9 +154,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     expect(loadTime).toBeGreaterThanOrEqual(delayMs - 500);
   });
 
-  test('should verify page remains responsive during API delay', async ({
-    page,
-  }) => {
+  test('should verify page remains responsive during API delay', async ({ page }) => {
     // Arrange - Set up API route with delay
     const delayMs = 3000;
 
@@ -191,9 +180,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     await expect(header).toBeVisible();
 
     // Wait for chart to eventually load
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
   });
 
   test('should measure exact delay timing for metrics', async ({ page }) => {
@@ -215,9 +202,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
 
     // Act - Navigate to the page
     await page.goto('/practice/charts-2-api.html');
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
 
     // Assert - Calculate actual delay
     const actualDelay = responseTime - requestTime;
@@ -259,8 +244,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     // Arrange - Set up API route with random delay between 1-3 seconds
     const minDelay = 1000;
     const maxDelay = 3000;
-    const actualDelay =
-      Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay;
+    const actualDelay = Math.floor(Math.random() * (maxDelay - minDelay)) + minDelay;
 
     await page.route('**/api/v1/data/weather**', async (route) => {
       await new Promise((resolve) => setTimeout(resolve, actualDelay));
@@ -274,21 +258,15 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     // Act - Navigate to the page
     const startTime = Date.now();
     await page.goto('/practice/charts-2-api.html');
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
     const loadTime = Date.now() - startTime;
 
     // Assert - Load time should be at least minDelay
-    console.log(
-      `Variable delay test - configured: ${actualDelay}ms, actual load: ${loadTime}ms`
-    );
+    console.log(`Variable delay test - configured: ${actualDelay}ms, actual load: ${loadTime}ms`);
     expect(loadTime).toBeGreaterThanOrEqual(minDelay - 200);
   });
 
-  test('should verify request timing with performance API', async ({
-    page,
-  }) => {
+  test('should verify request timing with performance API', async ({ page }) => {
     // Arrange - Set up delay
     const delayMs = 2000;
 
@@ -303,9 +281,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
 
     // Act - Navigate to the page
     await page.goto('/practice/charts-2-api.html');
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
 
     // Assert - Use Performance API to check timing
     const performanceEntries = await page.evaluate(() => {
@@ -322,15 +298,11 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
     console.log('Performance entries:', JSON.stringify(performanceEntries));
     // Performance entry should show the delay in duration
     if (performanceEntries.length > 0) {
-      expect(performanceEntries[0].duration).toBeGreaterThanOrEqual(
-        delayMs - 500
-      );
+      expect(performanceEntries[0].duration).toBeGreaterThanOrEqual(delayMs - 500);
     }
   });
 
-  test('should handle multiple sequential delayed requests', async ({
-    page,
-  }) => {
+  test('should handle multiple sequential delayed requests', async ({ page }) => {
     // Arrange - Set up API route with delay
     const delayMs = 1000;
     let requestCount = 0;
@@ -347,9 +319,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
 
     // Act - Navigate to the page
     await page.goto('/practice/charts-2-api.html');
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
 
     // Assert - At least one request should have been made
     expect(requestCount).toBeGreaterThanOrEqual(1);
@@ -367,9 +337,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
 
     let startTime = Date.now();
     await page.goto('/practice/charts-2-api.html');
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
     const loadTimeWithoutDelay = Date.now() - startTime;
 
     // Clear routes and set up with delay
@@ -387,18 +355,12 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
 
     startTime = Date.now();
     await page.goto('/practice/charts-2-api.html');
-    await expect(
-      page.locator('#sampleChart svg, #sampleChart canvas').first()
-    ).toBeVisible();
+    await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
     const loadTimeWithDelay = Date.now() - startTime;
 
     // Assert - Delayed version should take significantly longer
-    console.log(
-      `Load without delay: ${loadTimeWithoutDelay}ms, Load with ${delayMs}ms delay: ${loadTimeWithDelay}ms`
-    );
-    expect(loadTimeWithDelay - loadTimeWithoutDelay).toBeGreaterThanOrEqual(
-      delayMs - 500
-    );
+    console.log(`Load without delay: ${loadTimeWithoutDelay}ms, Load with ${delayMs}ms delay: ${loadTimeWithDelay}ms`);
+    expect(loadTimeWithDelay - loadTimeWithoutDelay).toBeGreaterThanOrEqual(delayMs - 500);
   });
 
   test('should handle abort during delay', async ({ page }) => {
@@ -410,11 +372,14 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
       try {
         await new Promise((resolve, reject) => {
           const timeout = setTimeout(resolve, delayMs);
-          route.request().response().catch(() => {
-            clearTimeout(timeout);
-            wasAborted = true;
-            reject(new Error('Request aborted'));
-          });
+          route
+            .request()
+            .response()
+            .catch(() => {
+              clearTimeout(timeout);
+              wasAborted = true;
+              reject(new Error('Request aborted'));
+            });
         });
         await route.fulfill({
           status: 200,

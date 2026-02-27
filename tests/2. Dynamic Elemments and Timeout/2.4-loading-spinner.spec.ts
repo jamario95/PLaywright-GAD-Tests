@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: waitForSelector + visibility assertions
- * - Selenium: WebDriverWait with ExpectedConditions.invisibilityOf
+ * - Selenium/WebdriverIO: waitForDisplayed({ reverse: true }) to wait for spinner disappearance
  * - Cypress: cy.get().should('not.be.visible') with automatic retry
  */
 test.describe('2.4 - Clicking element after loading spinner finishes', () => {

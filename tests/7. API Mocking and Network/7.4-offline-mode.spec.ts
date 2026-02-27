@@ -1,28 +1,28 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Scenario 7.4: Offline mode - disable network → verify error message
+ * Scenario 7.4: Offline mode - disable network → verify error handling
  * Page: Any page (using /practice/random-weather-v1.html for error handling)
- * Key metric: Offline mode support
+ * Network state: Disabled (offline)
  *
- * Goal: Compare offline mode simulation and error handling capabilities
+ * Technology Comparison:
+ * - Cypress: cy.intercept() + forceNetworkError: true - intercept-based simulation (5 LOC)
+ * - Playwright: context.setOffline(true) - native browser-level control (2 LOC) - BEST
+ * - WebdriverIO: browser.setOnline(false) - native browser-level control (2 LOC)
  *
- * Playwright's approach:
- * - context.setOffline(true) - simple API to simulate offline mode
- * - page.route() with abort() - block specific requests
+ * Metrics: Offline mode support, network error simulation, recovery handling
  *
- * Differences between technologies:
- * - Playwright: context.setOffline(true) - native, simple
- * - Selenium: Requires browser-specific DevTools Protocol or proxy
- * - Cypress: cy.intercept() with forceNetworkError: true
- *
- * Metric: Ease of implementing offline mode, error message verification
+ * Playwright-specific notes:
+ * - context.setOffline(true) - native, simple browser-level control (best approach)
+ * - page.route() with abort() - can block specific requests if needed
+ * - navigator.onLine property updates when offline/online automatically
+ * - Supports full offline scenario testing with automatic error handling
+ * - Request cancellation via AbortController during offline (advanced feature)
+ * - Service worker and cache handling can be tested
+ * - 17 tests covering offline detection, error display, recovery, and reconnection
  */
 test.describe('7.4 - Offline Mode (Network Disabled)', () => {
-  test('should set browser to offline mode and verify navigator.onLine', async ({
-    page,
-    context,
-  }) => {
+  test('should set browser to offline mode and verify navigator.onLine', async ({ page, context }) => {
     // Arrange - Navigate to page first while online
     await page.goto('/practice/random-weather-v1.html');
 
@@ -60,16 +60,11 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     await expect(resultsTable).not.toBeVisible({ timeout: 5000 });
   });
 
-  test('should not display data table when API request is blocked', async ({
-    page,
-  }) => {
+  test('should not display data table when API request is blocked', async ({ page }) => {
     // Arrange - Block API request
-    await page.route(
-      '**/api/v1/data/random/weather-simple**',
-      async (route) => {
-        await route.abort('failed');
-      }
-    );
+    await page.route('**/api/v1/data/random/weather-simple**', async (route) => {
+      await route.abort('failed');
+    });
 
     // Act - Navigate to the page
     await page.goto('/practice/random-weather-v1.html');
@@ -86,10 +81,7 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     await expect(pageHeading).toContainText('Random Weather');
   });
 
-  test('should verify navigator.onLine returns false when offline', async ({
-    page,
-    context,
-  }) => {
+  test('should verify navigator.onLine returns false when offline', async ({ page, context }) => {
     // Arrange - Navigate to page
     await page.goto('/practice/charts-2-api.html');
 
@@ -104,10 +96,7 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     await context.setOffline(false);
   });
 
-  test('should verify navigator.onLine returns true when online', async ({
-    page,
-    context,
-  }) => {
+  test('should verify navigator.onLine returns true when online', async ({ page, context }) => {
     // Arrange - Ensure online mode
     await context.setOffline(false);
 
@@ -136,7 +125,7 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
 
     // Assert - Check if offline event was triggered
     offlineEventFired = await page.evaluate(
-      () => (window as unknown as { offlineEventFired: boolean }).offlineEventFired || false
+      () => (window as unknown as { offlineEventFired: boolean }).offlineEventFired || false,
     );
 
     // Note: The offline event may not fire in all browser contexts
@@ -148,10 +137,7 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     await context.setOffline(false);
   });
 
-  test('should handle online event listener after going back online', async ({
-    page,
-    context,
-  }) => {
+  test('should handle online event listener after going back online', async ({ page, context }) => {
     // Arrange - Navigate to page
     await page.goto('/practice/charts-2-api.html');
 
@@ -188,16 +174,11 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     expect(pageTitle).toContain('GAD');
   });
 
-  test('should block requests with internetdisconnected reason', async ({
-    page,
-  }) => {
+  test('should block requests with internetdisconnected reason', async ({ page }) => {
     // Arrange - Block with specific abort reason
-    await page.route(
-      '**/api/v1/data/random/weather-simple**',
-      async (route) => {
-        await route.abort('internetdisconnected');
-      }
-    );
+    await page.route('**/api/v1/data/random/weather-simple**', async (route) => {
+      await route.abort('internetdisconnected');
+    });
 
     // Act - Navigate to the page
     await page.goto('/practice/random-weather-v1.html');
@@ -207,16 +188,11 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     await expect(resultsTable).not.toBeVisible();
   });
 
-  test('should block requests with connectionfailed reason', async ({
-    page,
-  }) => {
+  test('should block requests with connectionfailed reason', async ({ page }) => {
     // Arrange - Block with connection failed reason
-    await page.route(
-      '**/api/v1/data/random/weather-simple**',
-      async (route) => {
-        await route.abort('connectionfailed');
-      }
-    );
+    await page.route('**/api/v1/data/random/weather-simple**', async (route) => {
+      await route.abort('connectionfailed');
+    });
 
     // Act - Navigate to the page
     await page.goto('/practice/random-weather-v1.html');
@@ -228,12 +204,9 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
 
   test('should block requests with timedout reason', async ({ page }) => {
     // Arrange - Block with timeout reason
-    await page.route(
-      '**/api/v1/data/random/weather-simple**',
-      async (route) => {
-        await route.abort('timedout');
-      }
-    );
+    await page.route('**/api/v1/data/random/weather-simple**', async (route) => {
+      await route.abort('timedout');
+    });
 
     // Act - Navigate to the page
     await page.goto('/practice/random-weather-v1.html');
@@ -243,10 +216,7 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     await expect(resultsTable).not.toBeVisible();
   });
 
-  test('should measure offline mode setup time for metrics', async ({
-    page,
-    context,
-  }) => {
+  test('should measure offline mode setup time for metrics', async ({ page, context }) => {
     // Arrange - Navigate to page
     await page.goto('/practice/charts-2-api.html');
 
@@ -289,10 +259,7 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     }
   });
 
-  test('should verify page content remains after going offline', async ({
-    page,
-    context,
-  }) => {
+  test('should verify page content remains after going offline', async ({ page, context }) => {
     // Arrange - Navigate to page and wait for content
     await page.goto('/practice/charts-2-api.html');
     await expect(page.locator('#todayDate')).toBeVisible();
@@ -311,9 +278,7 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     await context.setOffline(false);
   });
 
-  test('should selectively block only API requests while allowing page to load', async ({
-    page,
-  }) => {
+  test('should selectively block only API requests while allowing page to load', async ({ page }) => {
     // Arrange - Block only API requests
     await page.route('**/api/**', async (route) => {
       await route.abort('failed');
@@ -331,10 +296,7 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     await expect(resultsTable).not.toBeVisible({ timeout: 5000 });
   });
 
-  test('should handle offline mode with pre-cached content', async ({
-    page,
-    context,
-  }) => {
+  test('should handle offline mode with pre-cached content', async ({ page, context }) => {
     // Arrange - First visit while online to allow caching
     await page.goto('/practice/random-weather-v1.html');
     await expect(page.locator('#results-table')).toBeVisible({ timeout: 10000 });
@@ -376,12 +338,9 @@ test.describe('7.4 - Offline Mode (Network Disabled)', () => {
     // Test one reason as example
     const testReason = 'internetdisconnected';
 
-    await page.route(
-      '**/api/v1/data/random/weather-simple**',
-      async (route) => {
-        await route.abort(testReason);
-      }
-    );
+    await page.route('**/api/v1/data/random/weather-simple**', async (route) => {
+      await route.abort(testReason);
+    });
 
     await page.goto('/practice/random-weather-v1.html');
 

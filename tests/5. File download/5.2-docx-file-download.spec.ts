@@ -24,9 +24,9 @@ import AdmZip from 'adm-zip';
  * We can verify metadata by extracting and reading the XML content.
  *
  * Differences between technologies:
- * - Playwright: download.path() + fs operations - straightforward
- * - Selenium: Browser preferences + file system check - OS-dependent
- * - Cypress: Limited support for binary files - workarounds needed
+ * - Playwright: download.path() + fs operations + binary validation (ZIP signature, XML extraction) - full capability
+ * - Selenium: UI state verification only - no file download or binary file validation capability
+ * - Cypress: cy.intercept() for API response - limited to headers and content-length, no ZIP/XML validation
  *
  * Metric: Binary file handling complexity
  */

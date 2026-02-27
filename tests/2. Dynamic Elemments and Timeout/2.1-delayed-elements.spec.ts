@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: Built-in auto-waiting (up to 30s default)
- * - Selenium: Manual WebDriverWait with ExpectedConditions
+ * - Selenium/WebdriverIO: waitForClickable({ timeout }) for explicit wait
  * - Cypress: Automatic retry (4s default)
  */
 test.describe('2.1 - Waiting for element with delay', () => {

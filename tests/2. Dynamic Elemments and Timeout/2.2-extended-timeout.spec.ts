@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: Built-in auto-waiting (up to 30s default) - handles without configuration
- * - Selenium: Requires increased timeout in WebDriverWait
+ * - Selenium/WebdriverIO: waitForEnabled({ timeout: 15000 }) for explicit wait
  * - Cypress: Default retry 4s may be insufficient - requires configuration
  */
 test.describe('2.2 - Element visibility after animation (extended timeout)', () => {

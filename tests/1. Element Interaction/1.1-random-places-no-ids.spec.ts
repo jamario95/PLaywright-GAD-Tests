@@ -13,9 +13,9 @@ import { test, expect } from '@playwright/test';
  * - Dynamic list manipulation buttons available
  *
  * Differences between technologies:
- * - Playwright: first(), nth(), last() methods with auto-waiting
+ * - Playwright: getByRole() (ARIA semantic selector) + first(), nth(), last() with auto-waiting (lazy locators)
  * - Selenium/WebdriverIO: $$() returns a materialized array snapshot; manual indexing [0], [n-1]
- * - Cypress: .first(), .eq(), .last() with automatic retry
+ * - Cypress: jQuery :contains() for text match + .first(), .eq(), .last() with automatic retry
  */
 test.describe('1.1 Click n-th element from list (no IDs) and verify', () => {
   test.beforeEach(async ({ page }) => {
@@ -69,7 +69,7 @@ test.describe('1.1 Click n-th element from list (no IDs) and verify', () => {
     await expect(resultsContainer).toContainText(`You have booked a table at ${restaurantName}`);
   });
 
-  test('should click "Book Now" button by filtering parent container with restaurant name', async ({ page }) => {
+  test('should click "Book Now" button by scoping within parent card (index-based)', async ({ page }) => {
     // Arrange
     const placeCards = page.locator('#places > div');
     const resultsContainer = page.locator('#results-container');

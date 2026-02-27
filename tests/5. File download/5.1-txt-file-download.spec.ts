@@ -20,9 +20,9 @@ import path from 'path';
  * Downloaded file: business-report.txt
  *
  * Differences between technologies:
- * - Playwright: page.waitForEvent('download') + download.path() - native support
- * - Selenium: Browser preferences + checking download folder - complex setup
- * - Cypress: cy.request() workaround - no native download support
+ * - Playwright: page.waitForEvent('download') + download.path() - native file download with full access
+ * - Selenium: UI state verification only - no file download or network interception capability
+ * - Cypress: cy.intercept() + cy.request() - API verification workaround, no file system access
  *
  * Metric: Number of additional tools/configuration needed
  */

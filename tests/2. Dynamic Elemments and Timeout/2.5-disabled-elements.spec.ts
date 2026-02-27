@@ -1,5 +1,23 @@
 import { test, expect } from '@playwright/test';
 
+/**
+ * Scenario 2.5: Verify disabled/enabled state of elements
+ * Page: /practice/disabled-elements-1.html
+ * Key metric: Handling edge cases
+ *
+ * Goal: Compare handling of disabled element states across frameworks
+ *
+ * GAD Page structure:
+ * - Elements start as disabled
+ * - After 2-5s delay, elements become enabled
+ * - Status label shows DISABLED → ENABLED
+ * - Results container shows interaction feedback
+ *
+ * Differences between technologies:
+ * - Playwright: await expect(element).toBeDisabled() with auto-wait
+ * - Selenium/WebdriverIO: element.isEnabled() with explicit waitForEnabled()
+ * - Cypress: cy.get().should('be.disabled') with automatic retry
+ */
 test.describe('2.5 Verify disabled/enabled state of elements', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/practice/disabled-elements-1.html');

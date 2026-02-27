@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test';
  *
  * Differences between technologies:
  * - Playwright: page.fill(), native validation support, auto-waiting
- * - Selenium: sendKeys(), manual waits for validation messages
+ * - Selenium: setValue(), waitForDisplayed() for validation messages
  * - Cypress: cy.type(), automatic retry for assertions
  */
 test.describe('4.1 - Required Field Validation', () => {

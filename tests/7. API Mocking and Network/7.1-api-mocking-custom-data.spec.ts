@@ -3,21 +3,21 @@ import { test, expect } from '@playwright/test';
 /**
  * Scenario 7.1: Mock API → return status 200 with custom data
  * Page: /practice/charts-2-api.html
- * Key metric: Ease of mocking
+ * API Endpoint: GET /api/v1/data/weather?date=...&days=14&futuredays=2
  *
- * Goal: Compare API mocking capabilities across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.intercept() - native support (4 LOC)
+ * - Playwright: page.route() + route.fulfill() - native support (6 LOC, requires JSON.stringify)
+ * - WebdriverIO: browser.mock() - native support (5 LOC)
  *
- * Page structure:
- * - #sampleChart: Chart container (Google Charts)
- * - #todayDate: Today's date display
- * - API endpoint: GET /api/v1/data/weather?date=...&days=14&futuredays=2
+ * Metrics: Lines of code for mocking, ease of configuration, async/await support
  *
- * Differences between technologies:
- * - Playwright: page.route() + route.fulfill() - native support, simple API
- * - Selenium: Requires BrowserMob Proxy or similar - complex setup (~10+ lines)
- * - Cypress: cy.intercept() + cy.stub() - native support, similar to Playwright
- *
- * Metric: Lines of code for mocking, number of additional tools/dependencies
+ * Playwright-specific notes:
+ * - page.route() + route.fulfill() provides fine-grained route and response control
+ * - Requires async callback pattern (async (route) => { ... })
+ * - Must use JSON.stringify() for response bodies (additional overhead)
+ * - Supports full response customization (headers, status, body, delays)
+ * - Routes can be set before page navigation for better performance
  */
 test.describe('7.1 - API Mocking with Custom Data (Status 200)', () => {
   // Mock weather data for testing
@@ -42,9 +42,7 @@ test.describe('7.1 - API Mocking with Custom Data (Status 200)', () => {
     },
   ];
 
-  test('should intercept weather API and return mocked data with status 200', async ({
-    page,
-  }) => {
+  test('should intercept weather API and return mocked data with status 200', async ({ page }) => {
     // Arrange - Set up API route interception
     await page.route('**/api/v1/data/weather**', async (route) => {
       await route.fulfill({
@@ -84,9 +82,7 @@ test.describe('7.1 - API Mocking with Custom Data (Status 200)', () => {
     await expect(page.locator('#sampleChart svg, #sampleChart canvas').first()).toBeVisible();
   });
 
-  test('should verify API request was intercepted correctly', async ({
-    page,
-  }) => {
+  test('should verify API request was intercepted correctly', async ({ page }) => {
     // Arrange - Track intercepted requests
     let interceptedUrl = '';
     let requestWasIntercepted = false;
@@ -114,9 +110,7 @@ test.describe('7.1 - API Mocking with Custom Data (Status 200)', () => {
     expect(interceptedUrl).toContain('futuredays=2');
   });
 
-  test('should mock API with empty array and verify chart handles empty data', async ({
-    page,
-  }) => {
+  test('should mock API with empty array and verify chart handles empty data', async ({ page }) => {
     // Arrange - Set up API route interception with empty data
     await page.route('**/api/v1/data/weather**', async (route) => {
       await route.fulfill({
@@ -237,9 +231,7 @@ test.describe('7.1 - API Mocking with Custom Data (Status 200)', () => {
     await expect(chartContainer).toBeVisible();
   });
 
-  test('should measure mocking execution time for metrics', async ({
-    page,
-  }) => {
+  test('should measure mocking execution time for metrics', async ({ page }) => {
     // Arrange - Set up timing measurement
     const startTime = Date.now();
 
@@ -267,9 +259,7 @@ test.describe('7.1 - API Mocking with Custom Data (Status 200)', () => {
     expect(executionTime).toBeGreaterThan(0);
   });
 
-  test('should mock multiple API endpoints simultaneously', async ({
-    page,
-  }) => {
+  test('should mock multiple API endpoints simultaneously', async ({ page }) => {
     // Arrange - Set up multiple route interceptions
     let weatherApiCalled = false;
     let otherApiCalled = false;
@@ -323,9 +313,7 @@ test.describe('7.1 - API Mocking with Custom Data (Status 200)', () => {
     expect(requestMethod).toBe('GET');
   });
 
-  test('should verify request contains authorization header', async ({
-    page,
-  }) => {
+  test('should verify request contains authorization header', async ({ page }) => {
     // Arrange - Track request headers
     let authorizationHeader = '';
 
