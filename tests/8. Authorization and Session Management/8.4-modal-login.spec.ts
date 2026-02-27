@@ -1,32 +1,21 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Scenario 8.4: Modal login - login in modal window
+ * Scenario 8.4: Modal login - login via browser native prompt dialog
  * Page: /practice/login-modal.html
- * Key metric: Modal interaction
+ * API Endpoint: POST /api/practice/modals/login
  *
- * Goal: Compare modal handling and dialog interaction across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.stub(win, 'prompt') via onBeforeLoad - pre-stubbing pattern
+ * - Playwright: page.on('dialog') + dialog.accept() - event listener before navigation
+ * - WebdriverIO: browser.getPuppeteer() + CDP dialog events via @wdio/devtools-service
  *
- * Page structure:
- * - Browser native prompt dialog for credentials (format: user:pass)
- * - #status: Status indicator (visible before login)
- * - #successContent: Success content container (visible after login)
- * - #failureContent: Failure content container (visible on failed login)
- * - #userDisplay: Username display after successful login
- * - #loginTime: Login timestamp display
- * - .logout-btn: Logout button
+ * Metric: Dialog handling complexity, lines of code, framework-specific limitations
  *
- * Authentication API:
- * - POST /api/practice/modals/login
- * - Body: { username: string, password: string }
- * - Valid credentials: user:pass
- *
- * Differences between technologies:
- * - Playwright: page.on('dialog') + dialog.accept() for native prompts
- * - Selenium: driver.switch_to.alert + alert.send_keys() for prompt handling
- * - Cypress: cy.window() + cy.stub() for dialog stubbing
- *
- * Metric: Ease of modal/dialog handling, lines of code
+ * Framework-specific notes:
+ * - Playwright: page.on('dialog') registered BEFORE page.goto(); dialog.accept(value) passes credentials; most concise solution
+ * - Cypress: window.prompt stubbed in onBeforeLoad BEFORE navigation; cy.stub() replaces native function; cannot test real browser dialog
+ * - WebdriverIO: blocking prompt requires CDP via browser.getPuppeteer(); page.on('dialog') from Puppeteer instance; browser.pause() needed
  */
 test.describe('8.4 - Modal Login Interaction', () => {
   // Valid credentials for modal login
@@ -289,5 +278,37 @@ test.describe('8.4 - Modal Login Interaction', () => {
     // Assert - Status indicator should be hidden
     const status = page.locator('#status');
     await expect(status).not.toBeVisible();
+  });
+
+  test('should display failure when empty credentials are provided', async ({ page }) => {
+    // Arrange - Set up dialog handler for empty credentials
+    page.on('dialog', async (dialog) => {
+      if (dialog.type() === 'prompt') {
+        await dialog.accept('');
+      }
+    });
+
+    // Act - Navigate to modal login page
+    await page.goto('/practice/login-modal.html');
+
+    // Assert - Failure content should be visible
+    const failureContent = page.locator('#failureContent');
+    await expect(failureContent).toBeVisible({ timeout: 5000 });
+  });
+
+  test('should handle credentials without colon separator', async ({ page }) => {
+    // Arrange - Set up dialog handler for malformed credentials (missing colon format)
+    page.on('dialog', async (dialog) => {
+      if (dialog.type() === 'prompt') {
+        await dialog.accept('userwithoutpassword');
+      }
+    });
+
+    // Act - Navigate to modal login page
+    await page.goto('/practice/login-modal.html');
+
+    // Assert - Failure content should be visible (invalid credentials format)
+    const failureContent = page.locator('#failureContent');
+    await expect(failureContent).toBeVisible({ timeout: 5000 });
   });
 });

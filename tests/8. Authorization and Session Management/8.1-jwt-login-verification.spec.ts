@@ -3,22 +3,19 @@ import { test, expect } from '@playwright/test';
 /**
  * Scenario 8.1: Login user → verify JWT saved in cookies
  * Page: /login
- * Key metric: Session handling
+ * API Endpoint: POST /api/login (via login form submission)
  *
- * Goal: Compare session handling and token storage across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.getCookie() + cy.getAllCookies() - chainable API, no async/await
+ * - Playwright: context.cookies() - promise-based, all cookies in single call
+ * - WebdriverIO: browser.getCookies() + browser.deleteCookies() - explicit async/await
  *
- * Page structure:
- * - #username: Email input field
- * - #password: Password input field
- * - #loginButton: Login submit button
- * - Cookie 'token': JWT token stored after successful login
+ * Metric: Lines of code for cookie/storage verification, session handling complexity
  *
- * Differences between technologies:
- * - Playwright: page.context().cookies() + page.evaluate() for localStorage, context storage state
- * - Selenium: execute_script() for cookies/localStorage
- * - Cypress: cy.getCookie() + cy.window().its('localStorage')
- *
- * Metric: Ease of session handling, lines of code for cookie/storage verification
+ * Framework-specific notes:
+ * - Playwright: context.cookies() retrieves all cookies in one async call; cookies auto-persist within test context
+ * - Cypress: cy.getCookie('name') is a dedicated chainable command; cy.getAllCookies() available; cy.session() for caching
+ * - WebdriverIO: browser.getCookies() needs explicit await; browser.waitUntil() for navigation polling; browser.deleteCookies() in beforeEach
  */
 test.describe('8.1 - JWT Login Verification (Cookie Storage)', () => {
   // Test user credentials (default GAD user)
@@ -253,5 +250,19 @@ test.describe('8.1 - JWT Login Verification (Cookie Storage)', () => {
     const cookies = await context.cookies();
     const tokenCookie = cookies.find((cookie) => cookie.name === 'token');
     expect(tokenCookie).toBeDefined();
+  });
+
+  test('should verify all cookies are set correctly after login', async ({
+    page,
+    context,
+  }) => {
+    // Arrange & Act - Login
+    await performLogin(page);
+
+    // Assert - Verify all expected session cookies are present
+    const cookies = await context.cookies();
+    const cookieNames = cookies.map((c) => c.name);
+    expect(cookieNames).toContain('token');
+    expect(cookieNames).toContain('id');
   });
 });

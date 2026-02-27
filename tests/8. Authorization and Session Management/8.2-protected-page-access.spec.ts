@@ -2,23 +2,20 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Scenario 8.2: Navigation with active session → verify access to protected page
- * Page: /welcome (protected page after login)
- * Key metric: Auth persistence
+ * Page: /welcome
+ * API Endpoint: N/A (E2E session persistence test)
  *
- * Goal: Compare authentication persistence and protected page access across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.getCookie() + cy.intercept() - chainable
+ * - Playwright: context.cookies() + page.route() + storageState
+ * - WebdriverIO: browser.getCookies() + browser.waitUntil() - explicit async
  *
- * Page structure:
- * - /login: Login page
- * - /welcome: Protected welcome page (requires authentication)
- * - /articles.html: Article list (some features require auth)
- * - /users.html: User profile page (requires auth)
+ * Metric: Auth persistence complexity, session sharing across page navigations
  *
- * Differences between technologies:
- * - Playwright: page.context().cookies() + context storage state for session persistence
- * - Selenium: execute_script() + session handling
- * - Cypress: cy.session() + cy.getCookie() for session persistence
- *
- * Metric: Ease of auth persistence, session sharing between tests
+ * Framework-specific notes:
+ * - Playwright: context.storageState() captures session state; page.route() intercepts requests; context auto-manages cookies
+ * - Cypress: cy.session() caches login state between tests; cy.intercept() for request assertions; storageState equivalent via cy.session()
+ * - WebdriverIO: browser.deleteCookies() required in beforeEach for test isolation; browser.waitUntil() for URL checks
  */
 test.describe('8.2 - Protected Page Access with Active Session', () => {
   // Test user credentials
@@ -276,5 +273,51 @@ test.describe('8.2 - Protected Page Access with Active Session', () => {
     const deleteButton = page.getByTestId('deleteButton');
     await expect(deleteButton).toBeVisible();
     await expect(deleteButton).toContainText('Delete Account');
+  });
+
+  test('should maintain session through multiple consecutive page navigations', async ({
+    page,
+    context,
+  }) => {
+    // Arrange - Login
+    await performLogin(page);
+
+    // Navigate through multiple pages and verify session persists at each step
+    await page.locator('#btnArticlesLink').click();
+    await expect(page).toHaveURL(/\/articles\.html/);
+    let cookies = await context.cookies();
+    expect(cookies.find((c) => c.name === 'token')).toBeDefined();
+
+    await page.goto('/comments.html');
+    await expect(page).toHaveURL(/\/comments\.html/);
+    cookies = await context.cookies();
+    expect(cookies.find((c) => c.name === 'token')).toBeDefined();
+
+    await page.goto('/welcome');
+    await expect(page).toHaveURL(/\/welcome/);
+    cookies = await context.cookies();
+    expect(cookies.find((c) => c.name === 'token')).toBeDefined();
+  });
+
+  test('should store session state retrievable via context storageState', async ({
+    page,
+    context,
+  }) => {
+    // Arrange & Act - Login
+    await performLogin(page);
+
+    // Act - Retrieve session state (Playwright equivalent of cy.session caching)
+    const state = await context.storageState();
+
+    // Assert - Session state contains token cookie
+    const tokenCookie = state.cookies.find((c) => c.name === 'token');
+    expect(tokenCookie).toBeDefined();
+    expect(tokenCookie?.value).toBeTruthy();
+
+    // Navigate away and back - session maintained within context
+    await page.goto('/articles.html');
+    await page.goto('/welcome');
+    await expect(page).toHaveURL(/\/welcome/);
+    await expect(page.getByTestId('hello')).toBeVisible();
   });
 });
