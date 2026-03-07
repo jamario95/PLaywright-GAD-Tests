@@ -1,24 +1,25 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Scenario 10.1: Drag & Drop element from list A to list B
+ * Scenario 10.1: Basic File Drag & Drop
  * Page: /practice/drag-and-drop-1.html
- * Key metric: Drag & Drop support
+ * API Endpoint: N/A (client-side file handling)
  *
- * Goal: Compare file drag & drop handling across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.selectFile() native API (since v9.3+); { action: 'drag-drop' } option simulates
+ *   drag-drop on the drop zone directly; cy.trigger() for manual drag events; no Buffer in assertion
+ * - Playwright: fileInput.setInputFiles({ buffer }) — concise, type-safe; page.waitForEvent('filechooser')
+ *   enables testing browse button dialog; page.evaluate() for drag event dispatch
+ * - WebdriverIO: browser.execute() with DataTransfer API for every upload — most verbose boilerplate;
+ *   browser.waitUntil() replaces reactive assertions; no file chooser event interception available
  *
- * Page structure:
- * - Drop zone with id="dropzone" accepts JSON files
- * - File input hidden with id="dragdropfile"
- * - Upload button with data-testid="uploadBtn"
- * - Results displayed in #results-container
+ * Metric: File upload API ergonomics, drag event simulation, lines of code per test
  *
- * Differences between technologies:
- * - Playwright: page.setInputFiles() + native drag events
- * - Selenium: ActionChains + drag_and_drop() - limited file support
- * - Cypress: cy.selectFile() + .trigger() for drag events
- *
- * Metric: Drag & Drop stability, lines of code
+ * Framework-specific notes:
+ * - Playwright fileInput.setInputFiles() is the most concise — one call, Buffer inline, no boilerplate
+ * - Cypress { action: 'drag-drop' } uniquely tests drag-drop simulation on the drop zone element
+ * - WebdriverIO DataTransfer pattern repeated in every test adds ~8 lines of boilerplate per test
+ * - Playwright page.waitForEvent('filechooser') intercepts OS file dialog — not possible in Cypress/WDIO
  */
 test.describe('10.1 - Basic File Drag & Drop', () => {
   // Test data

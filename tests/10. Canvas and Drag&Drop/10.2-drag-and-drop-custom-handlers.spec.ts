@@ -1,26 +1,25 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Scenario 10.2: Drag & Drop with custom event handlers
+ * Scenario 10.2: Multi-File Drag & Drop with Custom Event Handlers
  * Page: /practice/drag-and-drop-3.html
- * Key metric: Advanced interactions
+ * API Endpoint: N/A (client-side multi-file handling)
  *
- * Goal: Compare handling of multi-file drag & drop with custom event handlers
+ * Technology Comparison:
+ * - Cypress: cy.selectFile([...]) accepts array for multiple files natively; { action: 'drag-drop' }
+ *   simulates real drag to drop zone; cy.trigger('dragenter') synchronous event dispatch
+ * - Playwright: fileInput.setInputFiles([...]) with array of Buffer objects for multiple files;
+ *   page.evaluate() with new DragEvent() constructor for highlight event testing; type-safe
+ * - WebdriverIO: browser.execute() + DataTransfer.items.add() loop for each file — most verbose;
+ *   base64-encoded images decoded client-side via atob(); browser.pause(500) for state stabilization
  *
- * Page structure:
- * - Drop zone with id="dropzone" and class="drag-area-v3"
- * - Accepts multiple image files (JPG, PNG, GIF)
- * - Preview container with id="previewContainer"
- * - Upload button with data-testid="uploadBtn"
- * - Results gallery with id="results-container"
- * - Custom event handlers: dragenter, dragover, dragleave, drop
+ * Metric: Multi-file upload API, custom event handler testing, boilerplate per test
  *
- * Differences between technologies:
- * - Playwright: page.setInputFiles() with multiple files, event dispatching
- * - Selenium: Limited multi-file support, requires complex ActionChains
- * - Cypress: cy.selectFile() with multiple flag, .trigger() for events
- *
- * Metric: Stability of multi-file drag & drop, flakiness
+ * Framework-specific notes:
+ * - setInputFiles([...]) passes array directly — identical API for single and multiple files
+ * - page.evaluate() with DragEvent constructor tests custom dragenter/dragleave handlers precisely
+ * - Minimal PNG Buffer created once as helper function (createTestImageBuffer) — reused across tests
+ * - 'should not duplicate images with same name' tests app-level deduplication logic
  */
 test.describe('10.2 - Multi-File Drag & Drop with Custom Handlers', () => {
   // Helper to create test image buffer (minimal valid PNG)

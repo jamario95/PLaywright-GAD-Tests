@@ -3,22 +3,24 @@ import { test, expect } from '@playwright/test';
 /**
  * Scenario 10.3: Verify canvas rendering (pixel comparison)
  * Page: /practice/canvas-1.html
- * Key metric: Visual testing
+ * API Endpoint: N/A (client-side Canvas API + Chart.js)
  *
- * Goal: Compare canvas rendering verification across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.window().then() for Chart.js access with (win as any) cast; cy.wait(1500) fixed delay;
+ *   cy.screenshot() saves PNG to filesystem; visual regression requires cypress-image-snapshot plugin
+ * - Playwright: page.evaluate() with global Window interface declaration (type-safe, declared once);
+ *   waitForFunction(!animating) reactive wait; canvas.screenshot() returns Buffer with size assertion;
+ *   toHaveScreenshot() built-in for pixel-perfect regression (not used here for fair comparison)
+ * - WebdriverIO: browser.execute() with verbose inline TypeScript generics on every call;
+ *   browser.pause(1500) fixed delay; saveScreenshot() file-based; assertion is tautological (expect(true).to.be.true)
  *
- * Page structure:
- * - Canvas element with id="sampleChart"
- * - Chart.js library renders weather data chart
- * - Data includes: temperature (high/avg/low), humidity, wind speed
- * - Chart displays 26 data points from 2024-06-20 to 2024-07-15
+ * Metric: Visual testing support, screenshot comparison accuracy, JavaScript execution ergonomics
  *
- * Differences between technologies:
- * - Playwright: toHaveScreenshot() for visual comparison, canvas API access
- * - Selenium: Screenshot comparison with external libraries (e.g., ImageMagick)
- * - Cypress: cy.screenshot() + plugin for visual comparison
- *
- * Metric: Visual testing support, screenshot comparison accuracy
+ * Framework-specific notes:
+ * - waitForFunction(() => !animating) — reactive polling, eliminates fixed-delay flakiness present in Cypress/WebdriverIO
+ * - canvas.screenshot() returns Buffer — enables programmatic content validation (length > 1000 bytes)
+ * - Global Window interface extension (declare global at EOF) provides type safety without per-call casting
+ * - Built-in toHaveScreenshot() stores golden files in __snapshots__; no plugin required unlike Cypress
  */
 test.describe('10.3 - Canvas Rendering Verification', () => {
   test.beforeEach(async ({ page }) => {

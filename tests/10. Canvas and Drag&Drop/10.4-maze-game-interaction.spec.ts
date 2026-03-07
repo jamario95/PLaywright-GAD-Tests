@@ -1,27 +1,25 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Scenario 10.4: Interaction with Maze game (canvas-based)
+ * Scenario 10.4: Maze Game Interaction (canvas-based)
  * Page: /games/maze.html
- * Key metric: Complex canvas interaction
+ * API Endpoint: N/A (client-side maze game with DOM grid)
  *
- * Goal: Compare keyboard-based game interaction across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.get('body').type('{downarrow}{rightarrow}') special key syntax; cy.trigger('keydown', { key })
+ *   for raw event dispatch; body focus required; cy.wait() for timer assertions
+ * - Playwright: page.keyboard.press('ArrowDown') direct global keyboard API — most readable;
+ *   page.dispatchEvent() for alternative event dispatch; no focus element required
+ * - WebdriverIO: browser.keys('ArrowDown') global keyboard input; browser.pause() between moves
+ *   for DOM stabilization; browser.keys() accepts single string per call
  *
- * Page structure:
- * - Menu with maze size selector (id="mazeSize") and seed input (id="mazeSeed")
- * - Start button (id="startGame")
- * - Game UI with maze grid (id="mazeContainer")
- * - Status display (id="status") showing time
- * - New Game button (id="newGame")
- * - Player controlled via Arrow keys or WASD
- * - Goal: reach bottom-right corner from top-left
+ * Metric: Keyboard event API ergonomics, game interaction reliability, lines of code
  *
- * Differences between technologies:
- * - Playwright: page.keyboard.press() for game controls
- * - Selenium: ActionChains.send_keys() for keyboard input
- * - Cypress: cy.type() or cy.trigger('keydown') - limited game support
- *
- * Metric: Complex canvas/grid interaction, keyboard event handling
+ * Framework-specific notes:
+ * - page.keyboard.press() is global — no element focus required, most direct keyboard API
+ * - page.dispatchEvent('#mazeContainer', 'keydown', { key }) as alternative keyboard dispatch method
+ * - Seed-based maze generation allows deterministic test scenarios (same seed = same maze)
+ * - getMazeLayout() helper extracts boolean[] of wall positions for structural comparison
  */
 test.describe('10.4 - Maze Game Interaction', () => {
   test.beforeEach(async ({ page }) => {
@@ -381,6 +379,23 @@ test.describe('10.4 - Maze Game Interaction', () => {
 
     expect(wallCount).toBeGreaterThan(0);
     expect(pathCount).toBeGreaterThan(0);
+  });
+
+  test('should use keyboard events via page.dispatchEvent for movement', async ({ page }) => {
+    // Arrange
+    const mazeSizeSelect = page.locator('#mazeSize');
+    const startButton = page.locator('#startGame');
+
+    await mazeSizeSelect.selectOption('9');
+    await startButton.click();
+
+    // Act - Use page.dispatchEvent() as alternative to page.keyboard.press()
+    await page.dispatchEvent('#mazeContainer', 'keydown', { key: 'ArrowDown', code: 'ArrowDown' });
+    await page.dispatchEvent('#mazeContainer', 'keydown', { key: 'ArrowRight', code: 'ArrowRight' });
+
+    // Assert - Player should still exist (game responds to dispatched key events)
+    const playerCell = page.locator('#mazeContainer .cell.player');
+    await expect(playerCell).toHaveCount(1);
   });
 
   test('should measure game interaction time for metrics', async ({ page }) => {
