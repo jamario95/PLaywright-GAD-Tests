@@ -3,31 +3,19 @@ import { test, expect, Page } from '@playwright/test';
 /**
  * Scenario 11.1: Send message via WebSocket → verify it appears in UI
  * Page: /practice/websocket-chat-v1.html
- * Key metric: WebSocket support
+ * API Endpoint: N/A (WebSocket: ws://localhost:3010)
  *
- * Goal: Compare WebSocket message sending capabilities across frameworks
+ * Technology Comparison:
+ * - Cypress: UI-level only; no native WS monitoring; cy.window() for WS access; validates via DOM
+ * - Playwright: Full WS monitoring with page.waitForEvent('websocket') + ws.on('framesent/framereceived')
+ * - WebdriverIO: UI-based WS verification; no native WS monitoring; browser.pause(500) for stabilization
  *
- * Page structure:
- * - #loginScreen: Login overlay with username input
- * - #usernameInput: Input for entering username (3-16 chars, alphanumeric + underscore)
- * - #usernameError: Error message container for username validation
- * - #messages: Container for chat messages
- * - #messageInput: Input for typing messages
- * - .chat-button: Buttons for "Join Chat" and "Send"
+ * Metric: WebSocket message send support, test code complexity, native WS API access
  *
- * WebSocket communication:
- * - Connect to ws://localhost:3010 (port = HTTP port + 10)
- * - Send: { type: 'practiceChatJoin', username: string, version: 'v1' }
- * - Send: { type: 'practiceChatMessage', username: string, message: string }
- * - Receive: { type: 'practiceChatUserList', users: string[] }
- * - Receive: { type: 'practiceChatMessage', username: string, message: string }
- *
- * Differences between technologies:
- * - Playwright: page.waitForEvent('websocket') + WebSocket monitoring, native support
- * - Selenium: No native WebSocket support - requires external monitoring/tools
- * - Cypress: cy.intercept() for WebSocket (limited), community plugins needed
- *
- * Metric: WebSocket support, lines of code, ease of implementation
+ * Framework-specific notes:
+ * - page.waitForEvent('websocket') in beforeEach waits reactively — test won't start until WS is open
+ * - ws.on('framesent') / ws.on('framereceived') available for frame-level protocol monitoring
+ * - WebSocket URL verifiable: ws://localhost:3010 (HTTP port + 10)
  */
 test.describe('11.1 - WebSocket Send Message', () => {
   // Test data
@@ -228,19 +216,14 @@ test.describe('11.1 - WebSocket Send Message', () => {
     await sendButton.click();
     await expect(messagesContainer).toContainText(validMessage);
 
-    // Get messages count after valid message
-    const countAfterValidMessage = await messagesContainer.locator('p').count();
-
     // Act - Try to send empty message
     await messageInput.fill('');
     await sendButton.click();
 
-    // Assert - No new user message should appear (count unchanged for user messages)
+    // Assert - No new user message should appear
     // Input should remain empty (not cleared because nothing was sent)
     await expect(messageInput).toHaveValue('');
 
-    // The messages count should not have increased due to an empty user message
-    const countAfterEmptyAttempt = await messagesContainer.locator('p').count();
     // Allow for potential system messages but no empty user message should appear
     const userMessages = messagesContainer.locator(`.message-username:has-text("${uniqueUser}")`);
     const userMessageCount = await userMessages.count();

@@ -3,29 +3,19 @@ import { test, expect, Page } from '@playwright/test';
 /**
  * Scenario 11.3: WebSocket disconnect → verify "Offline" message
  * Page: /practice/websocket-chat-v1.html
- * Key metric: Connection handling
+ * API Endpoint: N/A (WebSocket: ws://localhost:3010)
  *
- * Goal: Compare WebSocket disconnection handling across frameworks
+ * Technology Comparison:
+ * - Cypress: No context.setOffline(); tests reload/navigation-based disconnect; no WS frame events
+ * - Playwright: context.setOffline() + WS event monitoring (framesent, framereceived, close, socketerror)
+ * - WebdriverIO: browser.setNetworkConditions({ offline: true }) for network simulation; no WS frame events
  *
- * This test validates the application's behavior when WebSocket
- * connection is lost or disrupted.
+ * Metric: Connection handling capability, offline simulation support, WebSocket event monitoring depth
  *
- * Connection states to test:
- * - Normal connection → chat works
- * - Connection lost → UI should indicate offline/disconnected state
- * - Reconnection → chat should resume
- *
- * WebSocket close events:
- * - Close code 1000: Normal closure
- * - Close code 1001: Going away (tab close)
- * - Close code 1006: Abnormal closure (network failure)
- *
- * Differences between technologies:
- * - Playwright: page.route() for network control, context.setOffline(), WebSocket event monitoring
- * - Selenium: Requires proxy configuration, limited network control
- * - Cypress: cy.intercept() limited for WebSocket, network simulation plugins needed
- *
- * Metric: Connection handling capability, lines of code, additional tools needed
+ * Framework-specific notes:
+ * - Only framework with native WS event listeners: ws.on('framesent'), ws.on('framereceived'), ws.on('close'), ws.on('socketerror')
+ * - context.setOffline(true) + page.waitForFunction(() => !navigator.onLine) for precise offline detection
+ * - CDPSession available via context.newCDPSession(page) for low-level network throttling (slow 3G etc.)
  */
 test.describe('11.3 - WebSocket Disconnect Handling', () => {
   /**

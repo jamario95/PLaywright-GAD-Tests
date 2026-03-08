@@ -3,29 +3,19 @@ import { test, expect, Page } from '@playwright/test';
 /**
  * Scenario 11.2: Receive push message → verify real-time update
  * Page: /practice/websocket-chat-v1.html
- * Key metric: Real-time validation
+ * API Endpoint: N/A (WebSocket: ws://localhost:3010)
  *
- * Goal: Compare real-time message receiving capabilities across frameworks
+ * Technology Comparison:
+ * - Cypress: Single-user only; cannot run multiple browser contexts; workarounds via cy.window()
+ * - Playwright: Multiple browser contexts (browser.newContext()) for true multi-user simulation
+ * - WebdriverIO: Multiple tabs (browser.newWindow() + switchToWindow()) for multi-user simulation
  *
- * This test validates that messages sent from one client are received
- * in real-time by another client without page refresh.
+ * Metric: Real-time validation capability, multi-client handling, code complexity
  *
- * Page structure:
- * - #messages: Container for chat messages
- * - .message-content: Individual message content
- * - .message-username: Username display in message
- * - .system-message: System messages (join/leave notifications)
- *
- * WebSocket events:
- * - practiceChatMessage: Regular chat message from another user
- * - practiceChatUserList: User list update when someone joins/leaves
- *
- * Differences between technologies:
- * - Playwright: Multiple browser contexts, page.waitForEvent(), native WebSocket support
- * - Selenium: Requires multiple WebDriver instances, complex synchronization
- * - Cypress: Limited multi-tab support, cy.origin() for cross-origin, community plugins
- *
- * Metric: Real-time validation speed, multi-client handling, lines of code
+ * Framework-specific notes:
+ * - browser.newContext() creates a fully isolated context (separate cookies, localStorage, WS connection)
+ * - No switchToWindow() needed — each context has its own independent page object
+ * - try/finally pattern ensures context.close() is called even when assertions fail
  */
 test.describe('11.2 - WebSocket Real-time Message Receiving', () => {
   /**
