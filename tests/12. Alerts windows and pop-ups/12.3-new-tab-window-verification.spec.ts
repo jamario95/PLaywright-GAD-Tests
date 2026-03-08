@@ -3,37 +3,19 @@ import { test, expect } from '@playwright/test';
 /**
  * Scenario 12.3: Opening new tab/window and verifying content
  * Page: /practice/new-window-v1/
- * Key metric: Multi-tab handling
+ * API Endpoint: N/A
  *
- * Goal: Compare multi-tab/window handling capabilities across frameworks
- *
- * Page structure:
- * - #openNewPageBtn: Button to open new window with data
- * - #dataPreview: Shows sample data that will be sent
- * - New window opens data-viewer.html with transferred data
- *
- * Data transfer methods used:
- * - URL parameters (encoded JSON)
- * - localStorage
- * - sessionStorage (via postMessage)
- *
- * New window (data-viewer.html) elements:
- * - #windowHeader: Header text "New Window - Received Data"
- * - .tab-btn[data-source]: Tab buttons (url, localStorage, sessionStorage)
- * - #urlDataContent: Displays data from URL parameters
- * - #localStorageDataContent: Displays data from localStorage
- * - #sessionStorageDataContent: Displays data from sessionStorage
- * - #backBtn: Back button to close window
- * - #refreshBtn: Refresh data button
- * - #clearBtn: Clear storage button
- * - #exportBtn: Export data button
- *
- * Differences between technologies:
- * - Playwright: page.waitForEvent('popup') + newPage context, native multi-page support
- * - Selenium: driver.switch_to.window() + window_handles, manual window management
- * - Cypress: Limited multi-tab support, requires workarounds (cy.task, cy.origin)
+ * Technology Comparison:
+ * - Cypress: No native multi-tab support; cy.stub(win, 'open') captures the target URL; cy.visit() navigates directly in the same tab; cy.on('window:confirm') for dialogs in data-viewer
+ * - Playwright: context.waitForEvent('page') captures the new window; full multi-page support; new page available as a separate Page object with full interactivity
+ * - WebdriverIO: browser.getWindowHandles() + browser.switchToWindow() for switching; manual handle management; browser.closeWindow() + switchToWindow() for cleanup
  *
  * Metric: Multi-tab handling ease, lines of code, context switching complexity
+ *
+ * Framework-specific notes:
+ * - context.waitForEvent('page') returns Promise<Page> — new window as a full Page object
+ * - newPage.waitForLoadState() ensures DOM is ready before interaction
+ * - newPage.isClosed() verifies window closure; context.pages().length checks open page count
  */
 test.describe('12.3 - New Tab/Window Content Verification', () => {
   test.beforeEach(async ({ page }) => {

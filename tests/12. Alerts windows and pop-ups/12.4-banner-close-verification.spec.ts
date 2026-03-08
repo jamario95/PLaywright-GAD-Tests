@@ -3,39 +3,19 @@ import { test, expect, Page } from '@playwright/test';
 /**
  * Scenario 12.4: Closing banner and verifying disappearance
  * Page: /practice/banners-v1.html
- * Key metric: Dynamic UI changes
+ * API Endpoint: N/A
  *
- * Goal: Compare banner/popup closing capabilities across frameworks
+ * Technology Comparison:
+ * - Cypress: cy.clearCookies() in beforeEach; cy.getCookie() for verification; cy.should() with automatic retry; closeAdOverlayIfVisible() as a const helper function
+ * - Playwright: context.clearCookies() + context.cookies() in beforeEach; expect.poll() for async cookie polling; closeAdOverlayIfVisible(page) as an async function helper
+ * - WebdriverIO: browser.deleteCookies() + browser.getCookies(); browser.execute() to read CSS; browser.waitUntil() instead of reactive auto-wait; closeAdOverlayIfVisible() as async helper
  *
- * Page structure:
- * - .ad-overlay (#adOverlay): Full-screen advertisement overlay
- * - .ad-banner (#adBanner): Advertisement banner with countdown timer
- * - #timer (.timer-overlay): 5-second countdown timer
- * - .close-ad: Close button (appears after timer ends)
- * - .action-btn: "See all practice pages" button
+ * Metric: Dynamic UI handling, animation waiting, CSS transition detection, cookie management
  *
- * - .cookie-banner (#cookieBanner): Cookie consent banner at bottom
- * - .accept-btn: "Accept Cookies" button
- * - .decline-btn: "Decline" button
- *
- * - .cookies-menu (#cookiesMenu): Menu to reset cookie states
- *
- * Banner behavior:
- * - Ad overlay: Shows on load (unless adClosed cookie exists)
- *   - 5 second countdown timer
- *   - Close button appears after timer completes
- *   - Clicking close sets adClosed cookie for 1 day
- *
- * - Cookie banner: Shows at bottom (unless cookieConsent cookie exists)
- *   - Accept sets cookieConsent=accepted cookie
- *   - Decline sets cookieConsent=declined cookie
- *
- * Differences between technologies:
- * - Playwright: Native waiting + CSS class assertions, auto-waiting for transitions
- * - Selenium: Explicit waits + manual class checking
- * - Cypress: cy.should() with automatic retries for visibility
- *
- * Metric: Dynamic UI handling, animation waiting, CSS transition detection
+ * Framework-specific notes:
+ * - context.clearCookies() clears context cookies; context.cookies() returns an array of Cookie objects
+ * - expect.poll(() => ..., { timeout }) for async polling of cookie values
+ * - Helper closeAdOverlayIfVisible(page: Page) extracted because 3+ tests share identical setup
  */
 test.describe('12.4 - Banner Close and Disappearance Verification', () => {
   //Helper function to close advertisement overlay if visible

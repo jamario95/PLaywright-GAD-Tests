@@ -3,28 +3,19 @@ import { test, expect, Dialog } from '@playwright/test';
 /**
  * Scenario 12.1: Accepting alert and verifying text
  * Page: /practice/alerts-1.html
- * Key metric: Alert handling
+ * API Endpoint: N/A
  *
- * Goal: Compare alert handling capabilities across frameworks
- *
- * Page structure:
- * - #alert-box-btn (data-testid: dti-alert-box-btn): Simple alert box button
- * - #alert-btn (data-testid: dti-alert-btn): Alert popup with fade out
- * - #alert-counter-btn (data-testid: dti-alert-counter-btn): Alert with click counter
- * - #alert-random-fade-out-btn (data-testid: dti-alert-random-fade-out-btn): Alert with random fade out
- * - #popup-modal-btn (data-testid: dti-popup-modal-btn): Modal popup button
- *
- * Alert behavior:
- * - Native alert(): Blocks execution until accepted (OK clicked)
- * - Custom alerts appear in #alerts-placeholder with various IDs
- * - Custom alerts auto-dismiss after 3000ms (or random time for some)
- *
- * Differences between technologies:
- * - Playwright: page.on('dialog') + auto-handling with dialog.accept()/dismiss()
- * - Selenium: driver.switch_to.alert + alert.accept()/dismiss() (manual handling)
- * - Cypress: Automatic alert dismissal with cy.on('window:alert')
+ * Technology Comparison:
+ * - Cypress: Automatic alert acceptance; cy.on('window:alert') captures text; cy.stub(win, 'alert') in onBeforeLoad enables full control and call verification
+ * - Playwright: page.on('dialog') registers async handler; dialog.accept()/dismiss() handle dialog; dialog.type() distinguishes 'alert'/'confirm'/'prompt'
+ * - WebdriverIO: browser.isAlertOpen() + browser.getAlertText() + browser.acceptAlert(); try/catch required as GAD uses non-native alerts
  *
  * Metric: Alert handling ease, lines of code, auto-waiting capabilities
+ *
+ * Framework-specific notes:
+ * - page.on('dialog') registers a persistent handler — applies to all subsequent dialogs in the page
+ * - Handler must be registered BEFORE the action that triggers the dialog
+ * - dialog.type() returns 'alert', 'confirm', 'prompt' or 'beforeunload'
  */
 test.describe('12.1 - Alert Accept and Text Verification', () => {
   test.beforeEach(async ({ page }) => {

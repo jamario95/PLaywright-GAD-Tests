@@ -3,28 +3,19 @@ import { test, expect } from '@playwright/test';
 /**
  * Scenario 12.2: Declining confirm dialog and verifying action
  * Page: /practice/alerts-1.html
- * Key metric: Dialog interaction
+ * API Endpoint: N/A
  *
- * Goal: Compare confirm dialog handling capabilities across frameworks
- *
- * Page structure:
- * - #popup-modal-btn (data-testid: dti-popup-modal-btn): Opens modal popup
- * - Modal contains: Accept and Cancel buttons
- * - #results-container: Shows result after modal interaction
- * - Custom alerts show confirmation messages (green for accept, red for cancel)
- *
- * Modal behavior:
- * - Accept button: Shows green alert "Modal was accepted by user!"
- *                  Updates #results-container with success message
- * - Cancel button: Shows red alert "Modal was cancelled by user!"
- *                  Clears #results-container
- *
- * Differences between technologies:
- * - Playwright: page.on('dialog') + dialog.dismiss() for confirm dialogs
- * - Selenium: driver.switch_to.alert + alert.dismiss()
- * - Cypress: cy.on('window:confirm') with return false to decline
+ * Technology Comparison:
+ * - Cypress: DOM modal — cy.get() + cy.contains(); cy.on('window:confirm') + return false to decline native confirm; cy.should('have.css') for color assertions
+ * - Playwright: DOM modal — CSS locators and getByRole(); page.on('dialog') + dialog.dismiss() for native confirm; toHaveCSS() for style assertions
+ * - WebdriverIO: DOM modal — XPath to locate buttons by text; browser.execute() to read getComputedStyle(); browser.pause() instead of reactive wait
  *
  * Metric: Dialog interaction complexity, lines of code
+ *
+ * Framework-specific notes:
+ * - getByRole('button', { name: '...' }) provides semantic, accessibility-friendly selectors
+ * - page.on('dialog') + dialog.dismiss() for native confirm() (not needed for DOM modal)
+ * - toHaveCSS() asserts computed CSS styles directly in the assertion
  */
 test.describe('12.2 - Confirm Dialog Decline and Action Verification', () => {
   test.beforeEach(async ({ page }) => {
