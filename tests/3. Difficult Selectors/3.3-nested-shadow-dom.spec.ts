@@ -7,12 +7,12 @@ import { test, expect } from '@playwright/test';
  *
  * Goal: Compare advanced selector capabilities
  *
- * Nested Shadow DOM means two levels of encapsulation
- * Playwright handles it automatically, Selenium/WebdriverIO requires browser.execute() JavaScript
+ * Nested Shadow DOM means two levels of encapsulation.
+ * WebdriverIO supports the >>> deep selector for automatic multi-level Shadow DOM traversal.
  *
  * Differences between technologies:
  * - Playwright: Automatic penetration of multi-level Shadow DOM
- * - Selenium/WebdriverIO: browser.execute() for nested traversal; shadow$().shadow$() not supported
+ * - Selenium/WebdriverIO: >>> deep selector for automatic traversal; shadow$().shadow$() not supported
  * - Cypress: Uses includeShadowDom: true for automatic penetration
  */
 test.describe('3.3 - Nested Shadow DOM (level 2)', () => {

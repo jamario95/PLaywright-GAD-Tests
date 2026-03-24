@@ -431,7 +431,8 @@ test.describe('11.3 - WebSocket Disconnect Handling', () => {
     expect(connectionStates).toContain('connected');
   });
 
-  test('should handle slow network conditions', async ({ page, context }) => {
+  test('should handle slow network conditions', async ({ page, context, browserName }) => {
+    test.skip(browserName !== 'chromium', 'CDP network throttling requires Chromium');
     // Arrange - Set up slow network simulation
     const user = uniqueUser('Slow');
     const cdpSession = await context.newCDPSession(page);

@@ -275,6 +275,7 @@ test.describe('7.3 - API Mocking with Delay (Network Throttling)', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
+        headers: { 'Timing-Allow-Origin': '*' },
         body: JSON.stringify(mockWeatherData),
       });
     });

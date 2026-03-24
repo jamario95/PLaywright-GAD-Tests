@@ -212,13 +212,7 @@ test.describe('6.3 - Pagination Navigation', () => {
     }
 
     // Collect IDs from page 1
-    const page1Ids: string[] = [];
-    const page1Rows = tableBody.locator('tr');
-    const page1Count = await page1Rows.count();
-    for (let i = 0; i < page1Count; i++) {
-      const id = await page1Rows.nth(i).locator('td').first().textContent();
-      if (id) page1Ids.push(id);
-    }
+    const page1Ids = await tableBody.locator('tr td:first-child').allTextContents();
 
     // Act - Navigate to next page
     const page1Text = await pageInfo.textContent();
@@ -226,13 +220,7 @@ test.describe('6.3 - Pagination Navigation', () => {
     await expect(pageInfo).not.toHaveText(page1Text || '');
 
     // Collect IDs from page 2
-    const page2Ids: string[] = [];
-    const page2Rows = tableBody.locator('tr');
-    const page2Count = await page2Rows.count();
-    for (let i = 0; i < page2Count; i++) {
-      const id = await page2Rows.nth(i).locator('td').first().textContent();
-      if (id) page2Ids.push(id);
-    }
+    const page2Ids = await tableBody.locator('tr td:first-child').allTextContents();
 
     // Assert - IDs should be different between pages
     const hasOverlap = page1Ids.some((id) => page2Ids.includes(id));
