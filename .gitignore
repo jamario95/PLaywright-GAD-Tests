@@ -9,4 +9,5 @@ node_modules/
 .claude
 allure-report/
 allure-results/
+Scripts.md
 

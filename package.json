@@ -4,14 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "test": "playwright test",
-  "test:seq": "playwright test --workers=1",
-  "allure:generate": "npx allure generate allure-results --clean -o allure-report",
-  "allure:open": "npx allure open allure-report",
-  "allure:report": "npx allure generate allure-results --clean -o allure-report && npx allure open allure-report",
-  "test:compare": "playwright test --project=chromium --workers=1",
-"test:crossbrowser": "playwright test --project=chromium --project=firefox --project=webkit"
-},
+    "test": "playwright test",
+    "test:seq": "playwright test --workers=1",
+    "test:compare": "playwright test --project=chromium --workers=1",
+    "test:all": "playwright test --project=chromium --project=firefox --project=edge",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:edge": "playwright test --project=edge",
+    "allure:clean": "rimraf allure-results allure-report",
+    "allure:generate": "npx allure generate allure-results --clean -o allure-report",
+    "allure:open": "npx allure open allure-report",
+    "allure:report": "npx allure generate allure-results --clean -o allure-report && npx allure open allure-report"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -22,6 +26,7 @@
     "@types/node": "^24.10.1",
     "adm-zip": "^0.5.16",
     "allure-commandline": "^2.37.0",
-    "allure-playwright": "^3.6.0"
+    "allure-playwright": "^3.6.0",
+    "rimraf": "^6.1.3"
   }
 }
