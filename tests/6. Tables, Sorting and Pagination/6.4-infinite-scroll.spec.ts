@@ -146,7 +146,7 @@ test.describe('6.4 - Infinite Scroll', () => {
     await expect(loadingIndicator).not.toBeVisible({ timeout: 5000 });
   });
 
-  test('should have valid name and surname for first 100 items', async ({
+  test('should have valid name and surname for first 50 items', async ({
     page,
   }) => {
     // Arrange
